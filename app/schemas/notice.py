@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
+
 class NoticeBase(BaseModel):
     title: str
     first_name: str
@@ -18,6 +19,7 @@ class NoticeBase(BaseModel):
     preferred_contact_email: Optional[bool] = False
     poster_type: Optional[str] = None
     price: Optional[float] = None
+
 
 class NoticeCreate(BaseModel):
     title: str
@@ -34,6 +36,7 @@ class NoticeCreate(BaseModel):
     poster_type: str
     price: float
 
+
 class NoticeUpdate(NoticeBase):
     title: Optional[str] = None
     first_name: Optional[str] = None
@@ -48,6 +51,7 @@ class NoticeUpdate(NoticeBase):
     preferred_contact_email: Optional[bool] = None
     poster_type: Optional[str] = None
     price: Optional[float] = None
+
 
 class NoticeInResponse(NoticeBase):
     id: int

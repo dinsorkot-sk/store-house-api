@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import or_, asc, desc
 from app.models.notice import Notice
 from app.schemas.notice import NoticeCreate, NoticeUpdate, NoticeInResponse
-from fastapi import HTTPException , Request
+from fastapi import HTTPException, Request
+
 
 # ฟังก์ชันในการสร้าง Notice ใหม่
 def create_notice(db: Session, notice_create: NoticeCreate) -> NoticeInResponse:
@@ -29,8 +31,11 @@ def create_notice(db: Session, notice_create: NoticeCreate) -> NoticeInResponse:
 
     return NoticeInResponse.from_orm(notice)
 
+
 # ฟังก์ชันในการอัปเดต Notice
-def update_notice(db: Session, notice_id: int, notice_update: NoticeUpdate) -> NoticeInResponse:
+def update_notice(
+    db: Session, notice_id: int, notice_update: NoticeUpdate
+) -> NoticeInResponse:
     # ค้นหา Notice ที่ต้องการอัปเดตจาก id
     notice = db.query(Notice).filter(Notice.id == notice_id).first()
 
@@ -71,6 +76,7 @@ def update_notice(db: Session, notice_id: int, notice_update: NoticeUpdate) -> N
 
     return NoticeInResponse.from_orm(notice)
 
+
 # ฟังก์ชันในการดึงข้อมูล Notice ตาม ID
 def get_notice(db: Session, notice_id: int) -> NoticeInResponse:
     # ค้นหาข้อมูล Notice ที่มี id ตรงกับที่ระบุ
@@ -81,30 +87,80 @@ def get_notice(db: Session, notice_id: int) -> NoticeInResponse:
 
     return NoticeInResponse.from_orm(notice)
 
+
 # ฟังก์ชันในการดึงข้อมูลทั้งหมดของ Notices
-def get_notices(db: Session, skip: int = 0, limit: int = 10 , request: Request = None) -> dict:
+def get_notices(
+    db: Session,
+    skip: int = 0,
+    limit: int = 10,
+    keyword: str = None,
+    order_price: str = None,
+    order_size: str = None,
+    order_notices: str = "desc",
+    request: Request = None,
+) -> dict:
+
+    # Query สำหรับค้นหา Notice
+    query = db.query(Notice)
+
+    # เพิ่มเงื่อนไขการค้นหา หากมี keyword
+    if keyword:
+        query = query.filter(
+            or_(
+                Notice.title.ilike(f"%{keyword}%"),
+                Notice.details.ilike(f"%{keyword}%"),
+                Notice.location.ilike(f"%{keyword}%"),
+            )
+        )
+
+    # จัดเรียงตามราคา (asc หรือ desc)
+    if order_price == "asc":
+        query = query.order_by(asc(Notice.price))
+    elif order_price == "desc":
+        query = query.order_by(desc(Notice.price))
+
+    # จัดเรียงตามราคา (asc หรือ desc)
+    if order_size == "asc":
+        query = query.order_by(asc(Notice.size))
+    elif order_size == "desc":
+        query = query.order_by(desc(Notice.size))
+
+    # จัดเรียงตามราคา (asc หรือ desc)
+    if order_notices == "asc":
+        query = query.order_by(asc(Notice.created_at))
+    elif order_notices == "desc":
+        query = query.order_by(desc(Notice.created_at))
+
     # ค้นหา Notice ทั้งหมดจากฐานข้อมูล
-    notices = db.query(Notice).offset(skip).limit(limit).all()
-    
+    notices = query.offset(skip).limit(limit).all()
+
     # คำนวณจำนวนข้อมูลทั้งหมดในฐานข้อมูล
-    total = db.query(Notice).count()
+    total = query.count()
 
     # คำนวณจำนวนหน้า (total pages)
     total_pages = (total // limit) + (1 if total % limit > 0 else 0)
-    
+
     # คำนวณหมายเลขหน้าปัจจุบัน
     current_page = (skip // limit) + 1
-    
+
     # คำนวณ next และ prev page
     next_page = current_page + 1 if current_page < total_pages else None
     prev_page = current_page - 1 if current_page > 1 else None
-    
+
     # ตรวจสอบว่า request มีค่า prefix หรือไม่ และสร้าง URL
     base_url = str(request.base_url) if request else "http://localhost:8000/"
     # สร้าง next_page_url และ prev_page_url โดยใช้ url_for และค่าพารามิเตอร์ที่เหมาะสม
-    next_page_url = f"{base_url}api/notices/?skip={(next_page - 1) * limit}&limit={limit}" if next_page else None
-    prev_page_url = f"{base_url}api/notices/?skip={(prev_page - 1) * limit}&limit={limit}" if prev_page else None
-    
+    next_page_url = (
+        f"{base_url}api/notices/?skip={(next_page - 1) * limit}&limit={limit}"
+        if next_page
+        else None
+    )
+    prev_page_url = (
+        f"{base_url}api/notices/?skip={(prev_page - 1) * limit}&limit={limit}"
+        if prev_page
+        else None
+    )
+
     # สร้าง response ที่มีข้อมูลต่างๆ
     return {
         "total": total,
@@ -112,6 +168,5 @@ def get_notices(db: Session, skip: int = 0, limit: int = 10 , request: Request =
         "current_page": current_page,
         "next_page_url": next_page_url,
         "prev_page_url": prev_page_url,
-        "notices": [NoticeInResponse.from_orm(notice) for notice in notices]
+        "notices": [NoticeInResponse.from_orm(notice) for notice in notices],
     }
-
