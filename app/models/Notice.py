@@ -3,7 +3,6 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.database import Base
 
-
 class Notice(Base):
     __tablename__ = "notices"
 
@@ -26,4 +25,4 @@ class Notice(Base):
     deleted_at = Column(DateTime, index=True, nullable=True)
 
     # Relationship with notice_images
-    images = relationship("NoticeImage", back_populates="notice", cascade="all, delete-orphan")
+    # images = relationship("NoticeImage", back_populates="notice", cascade="all, delete-orphan")

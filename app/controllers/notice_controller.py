@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models import Notice
+from app.models.notice import Notice
 from app.schemas.notice import NoticeCreate, NoticeUpdate, NoticeInResponse
 from fastapi import HTTPException
 

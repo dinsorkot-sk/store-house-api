@@ -14,4 +14,5 @@ class NoticeImage(Base):
     deleted_at = Column(DateTime, index=True, nullable=True)
 
     # Relationship with notice
-    notice = relationship("Notice", back_populates="images")
+    # notice = relationship("Notice", back_populates="images")
+    

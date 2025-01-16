@@ -57,3 +57,4 @@ class NoticeInResponse(NoticeBase):
 
     class Config:
         orm_mode = True  # ช่วยให้ Pydantic ใช้ข้อมูลจาก SQLAlchemy model ได้
+        from_attributes = True
