@@ -19,8 +19,20 @@ class NoticeBase(BaseModel):
     poster_type: Optional[str] = None
     price: Optional[float] = None
 
-class NoticeCreate(NoticeBase):
-    pass  # ใช้สำหรับการสร้างข้อมูลใหม่
+class NoticeCreate(BaseModel):
+    title: str
+    first_name: str
+    last_name: str
+    phone: str
+    email: str
+    location: str
+    size: str
+    office_size: str
+    details: str
+    preferred_contact_phone: bool
+    preferred_contact_email: bool
+    poster_type: str
+    price: float
 
 class NoticeUpdate(NoticeBase):
     title: Optional[str] = None
