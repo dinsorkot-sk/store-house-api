@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.notice import Notice
 from app.schemas.notice import NoticeCreate, NoticeUpdate, NoticeInResponse
-from fastapi import HTTPException
+from fastapi import HTTPException , Request
 
 # ฟังก์ชันในการสร้าง Notice ใหม่
 def create_notice(db: Session, notice_create: NoticeCreate) -> NoticeInResponse:
@@ -82,7 +82,36 @@ def get_notice(db: Session, notice_id: int) -> NoticeInResponse:
     return NoticeInResponse.from_orm(notice)
 
 # ฟังก์ชันในการดึงข้อมูลทั้งหมดของ Notices
-def get_notices(db: Session, skip: int = 0, limit: int = 10) -> list[NoticeInResponse]:
+def get_notices(db: Session, skip: int = 0, limit: int = 10 , request: Request = None) -> dict:
     # ค้นหา Notice ทั้งหมดจากฐานข้อมูล
     notices = db.query(Notice).offset(skip).limit(limit).all()
-    return [NoticeInResponse.from_orm(notice) for notice in notices]
+    
+    # คำนวณจำนวนข้อมูลทั้งหมดในฐานข้อมูล
+    total = db.query(Notice).count()
+
+    # คำนวณจำนวนหน้า (total pages)
+    total_pages = (total // limit) + (1 if total % limit > 0 else 0)
+    
+    # คำนวณหมายเลขหน้าปัจจุบัน
+    current_page = (skip // limit) + 1
+    
+    # คำนวณ next และ prev page
+    next_page = current_page + 1 if current_page < total_pages else None
+    prev_page = current_page - 1 if current_page > 1 else None
+    
+    # ตรวจสอบว่า request มีค่า prefix หรือไม่ และสร้าง URL
+    base_url = str(request.base_url) if request else "http://localhost:8000/"
+    # สร้าง next_page_url และ prev_page_url โดยใช้ url_for และค่าพารามิเตอร์ที่เหมาะสม
+    next_page_url = f"{base_url}api/notices/?skip={(next_page - 1) * limit}&limit={limit}" if next_page else None
+    prev_page_url = f"{base_url}api/notices/?skip={(prev_page - 1) * limit}&limit={limit}" if prev_page else None
+    
+    # สร้าง response ที่มีข้อมูลต่างๆ
+    return {
+        "total": total,
+        "total_pages": total_pages,
+        "current_page": current_page,
+        "next_page_url": next_page_url,
+        "prev_page_url": prev_page_url,
+        "notices": [NoticeInResponse.from_orm(notice) for notice in notices]
+    }
+

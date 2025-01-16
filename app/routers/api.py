@@ -1,19 +1,20 @@
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from app.schemas.notice import NoticeCreate, NoticeUpdate, NoticeInResponse
 from app.database import SessionLocal
-from app.controllers.notice_controller import create_notice, update_notice, get_notice
+from app.controllers.notice_controller import create_notice, update_notice, get_notice , get_notices
 
 def get_session_local():
     yield SessionLocal()
 
 router = APIRouter(prefix="/api",tags=["api"],)
 
-@router.get("/users/")
-async def read_users():
-    return [{"username": "Rick"}, {"username": "Morty"}]
-
+# ดึงข้อมูล Notice ทั้งหมด
+@router.get("/notices/")
+async def read_notices(skip: int = 0, limit: int = 10, request: Request = None , db: Session = Depends(get_session_local)):
+    # เรียกใช้ฟังก์ชัน get_notices เพื่อดึงข้อมูลพร้อมกับ pagination
+    return get_notices(db=db, skip=skip, limit=limit , request=request)
 
 # สร้าง Notice ใหม่
 @router.post("/notices/", response_model=NoticeInResponse)

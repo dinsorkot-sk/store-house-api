@@ -56,5 +56,4 @@ class NoticeInResponse(NoticeBase):
     deleted_at: Optional[datetime] = None
 
     class Config:
-        orm_mode = True  # ช่วยให้ Pydantic ใช้ข้อมูลจาก SQLAlchemy model ได้
         from_attributes = True
