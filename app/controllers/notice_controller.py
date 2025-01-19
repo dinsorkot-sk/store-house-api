@@ -76,6 +76,18 @@ def update_notice(
 
     return NoticeInResponse.from_orm(notice)
 
+def delete_notice(db: Session, inquirer_id: int):
+    notice = db.query(Notice).filter(Notice.id == inquirer_id).first()
+    
+    if not notice:
+        raise HTTPException(status_code=404, detail="Notice not found")
+    
+    if notice:
+        db.delete(notice)
+        db.commit()
+        return notice
+    return NoticeInResponse.from_orm(notice)
+
 
 # ฟังก์ชันในการดึงข้อมูล Notice ตาม ID
 def get_notice(db: Session, notice_id: int) -> NoticeInResponse:
@@ -160,6 +172,9 @@ def get_notices(
         if prev_page
         else None
     )
+    
+    if not notices:
+        raise HTTPException(status_code=404, detail="Notices not found")
 
     # สร้าง response ที่มีข้อมูลต่างๆ
     return {

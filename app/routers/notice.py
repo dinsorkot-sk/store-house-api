@@ -7,8 +7,8 @@ from app.controllers.notice_controller import (
     update_notice,
     get_notice,
     get_notices,
+    delete_notice
 )
-
 
 def get_session_local():
     yield SessionLocal()
@@ -16,9 +16,13 @@ def get_session_local():
 
 router = APIRouter(
     prefix="/api",
-    tags=["api"],
+    tags=["api notices"],
 )
 
+# สร้าง Notice ใหม่
+@router.post("/notices/", response_model=NoticeInResponse)
+def add_notice(notice_create: NoticeCreate, db: Session = Depends(get_session_local)):
+    return create_notice(db=db, notice_create=notice_create)
 
 # ดึงข้อมูล Notice ทั้งหมด
 @router.get("/notices/")
@@ -44,12 +48,10 @@ async def read_notices(
         request=request,
     )
 
-
-# สร้าง Notice ใหม่
-@router.post("/notices/", response_model=NoticeInResponse)
-def add_notice(notice_create: NoticeCreate, db: Session = Depends(get_session_local)):
-    return create_notice(db=db, notice_create=notice_create)
-
+# ดึงข้อมูล Notice ตาม ID
+@router.get("/notices/{notice_id}", response_model=NoticeInResponse)
+def read_notice(notice_id: int, db: Session = Depends(get_session_local)):
+    return get_notice(db=db, notice_id=notice_id)
 
 # อัปเดตข้อมูล Notice
 @router.put("/notices/{notice_id}", response_model=NoticeInResponse)
@@ -60,8 +62,7 @@ def modify_notice(
 ):
     return update_notice(db=db, notice_id=notice_id, notice_update=notice_update)
 
-
-# ดึงข้อมูล Notice ตาม ID
-@router.get("/notices/{notice_id}", response_model=NoticeInResponse)
-def read_notice(notice_id: int, db: Session = Depends(get_session_local)):
-    return get_notice(db=db, notice_id=notice_id)
+# ลบข้อมูล Notice ตาม ID
+@router.delete("/notices/{notice_id}", response_model=NoticeInResponse)
+def drop_notice(notice_id: int, db: Session = Depends(get_session_local)):
+    return delete_notice(db=db, notice_id=notice_id)
