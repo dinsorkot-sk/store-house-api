@@ -26,8 +26,11 @@ class AdminUserBase(BaseModel):
     deleted_at: Optional[datetime] = None
 
 class AdminUserResponse(AdminUserBase):
-    id : str
-    
+    id : int
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime] = None
+
 
     class Config:
-        orm_mode = True
+        from_attributes = True

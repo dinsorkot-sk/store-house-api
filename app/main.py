@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.database import Base, engine
-from app.routers import notice, inquirer
+from app.routers import notice, inquirer , admin_user
+
 
 # สร้างตารางในฐานข้อมูล
 Base.metadata.create_all(bind=engine)
@@ -15,3 +16,4 @@ async def root():
 
 app.include_router(notice.router)
 app.include_router(inquirer.router)
+app.include_router(admin_user.router)

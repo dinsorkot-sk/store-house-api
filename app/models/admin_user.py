@@ -5,7 +5,7 @@ from app.database import Base
 
 
 class Admin_User(Base):
-    __tablename__ = 'admin_user'
+    __tablename__ = 'admin_users'
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
