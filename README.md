@@ -57,7 +57,7 @@ Install the dependencies listed in the `requirements.txt` file.
 
 ---
 
-### Running the Application
+## Running the Application
 
 1. Run the development server:
     ```bash
@@ -69,7 +69,7 @@ Install the dependencies listed in the `requirements.txt` file.
 
 ---
 
-#### API Endpoints
+## API Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
