@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.database import Base, engine
-from app.routers import notice, inquirer , admin_user , contact
+from app.routers import notice, inquirer , admin_user , contact , working
 
 
 # สร้างตารางในฐานข้อมูล
@@ -18,3 +18,5 @@ app.include_router(notice.router)
 app.include_router(inquirer.router)
 app.include_router(admin_user.router)
 app.include_router(contact.router)
+app.include_router(working.router)
+
