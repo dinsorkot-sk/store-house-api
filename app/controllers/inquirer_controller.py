@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, asc, desc
+from datetime import datetime
 from app.models.inquirer import Inquirer
 from app.schemas.inquirer import InquirerCreate, InquirerUpdate, InquirerResponse
 from fastapi import HTTPException, Request
@@ -118,7 +119,8 @@ def delete_inquirer(db: Session, inquirer_id: int):
         raise HTTPException(status_code=404, detail="Inquirer not found")
 
     if inquirer:
-        db.delete(inquirer)
+        inquirer.deleted_at = datetime.utcnow()
         db.commit()
+        db.refresh(inquirer)
         return inquirer
     return InquirerResponse.from_orm(inquirer)

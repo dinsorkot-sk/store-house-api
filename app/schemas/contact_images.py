@@ -3,7 +3,7 @@ from typing import Optional, List
 from datetime import datetime
 
 class ContactImageBase(BaseModel):
-    contact_id: int
+    # contact_id: int
     image_path: str
 
 class ContactImageCreate(ContactImageBase):

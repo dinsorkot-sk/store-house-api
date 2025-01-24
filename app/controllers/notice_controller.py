@@ -1,33 +1,40 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, asc, desc
+from datetime import datetime
 from app.models.notice import Notice
-from app.schemas.notice import NoticeCreate, NoticeUpdate, NoticeInResponse
+from app.models.notice_image import NoticeImage
+from app.schemas.notice import (
+    NoticeCreate,
+    NoticeUpdate,
+    NoticeInResponse,
+    NoticeResponse,
+)
 from fastapi import HTTPException, Request
 
 
 # ฟังก์ชันในการสร้าง Notice ใหม่
 def create_notice(db: Session, notice_create: NoticeCreate) -> NoticeInResponse:
-    # สร้าง instance ของ Notice จากข้อมูลที่ได้รับ
-    notice = Notice(
-        title=notice_create.title,
-        first_name=notice_create.first_name,
-        last_name=notice_create.last_name,
-        phone=notice_create.phone,
-        email=notice_create.email,
-        location=notice_create.location,
-        size=notice_create.size,
-        office_size=notice_create.office_size,
-        details=notice_create.details,
-        preferred_contact_phone=notice_create.preferred_contact_phone,
-        preferred_contact_email=notice_create.preferred_contact_email,
-        poster_type=notice_create.poster_type,
-        price=notice_create.price,
-    )
+    # Create Notice instance
+    notice_data = notice_create.dict(exclude={"images"})  # Exclude images here
+    notice = Notice(**notice_data)
 
-    # เพิ่มข้อมูลลงในฐานข้อมูล
+    # Add Notice to database
     db.add(notice)
     db.commit()
-    db.refresh(notice)  # โหลดข้อมูลที่เพิ่งเพิ่มเข้ามาใหม่เพื่อให้ได้ค่า id, timestamps
+    db.refresh(notice)  # Load generated ID and timestamps
+
+    # Add images if provided
+    if notice_create.images:
+        for image in notice_create.images:
+            notice_image = NoticeImage(
+                notice_id=notice.id,
+                image_path=image.image_path,
+            )
+            db.add(notice_image)
+        db.commit()
+
+    # # Reload notice with images
+    # notice = db.query(Notice).filter(Notice.id == notice.id).first()
 
     return NoticeInResponse.from_orm(notice)
 
@@ -36,56 +43,72 @@ def create_notice(db: Session, notice_create: NoticeCreate) -> NoticeInResponse:
 def update_notice(
     db: Session, notice_id: int, notice_update: NoticeUpdate
 ) -> NoticeInResponse:
-    # ค้นหา Notice ที่ต้องการอัปเดตจาก id
+    # Find the Notice to update
     notice = db.query(Notice).filter(Notice.id == notice_id).first()
-
     if not notice:
         raise HTTPException(status_code=404, detail="Notice not found")
 
-    # อัปเดตข้อมูลของ Notice
-    if notice_update.title:
-        notice.title = notice_update.title
-    if notice_update.first_name:
-        notice.first_name = notice_update.first_name
-    if notice_update.last_name:
-        notice.last_name = notice_update.last_name
-    if notice_update.phone:
-        notice.phone = notice_update.phone
-    if notice_update.email:
-        notice.email = notice_update.email
-    if notice_update.location:
-        notice.location = notice_update.location
-    if notice_update.size:
-        notice.size = notice_update.size
-    if notice_update.office_size:
-        notice.office_size = notice_update.office_size
-    if notice_update.details:
-        notice.details = notice_update.details
-    if notice_update.preferred_contact_phone is not None:
-        notice.preferred_contact_phone = notice_update.preferred_contact_phone
-    if notice_update.preferred_contact_email is not None:
-        notice.preferred_contact_email = notice_update.preferred_contact_email
-    if notice_update.poster_type:
-        notice.poster_type = notice_update.poster_type
-    if notice_update.price is not None:
-        notice.price = notice_update.price
+    # Update fields dynamically
+    update_fields = [
+        "title",
+        "first_name",
+        "last_name",
+        "phone",
+        "email",
+        "location",
+        "size",
+        "office_size",
+        "details",
+        "preferred_contact_phone",
+        "preferred_contact_email",
+        "poster_type",
+        "price",
+    ]
+    for field in update_fields:
+        if getattr(notice_update, field) is not None:
+            setattr(notice, field, getattr(notice_update, field))
 
-    # บันทึกการอัปเดตลงในฐานข้อมูล
+    # Update images if provided
+    if notice_update.images:
+        db.query(NoticeImage).filter(NoticeImage.notice_id == notice.id).delete()
+        db.add_all(
+            [
+                NoticeImage(notice_id=notice.id, image_path=image.image_path)
+                for image in notice_update.images
+            ]
+        )
+
+    # Save changes
+    db.commit()
+    db.refresh(notice)
+    return NoticeInResponse.from_orm(notice)
+
+
+# ฟังค์ชั่นในการลบ
+def delete_notice(db: Session, notice_id: int):
+    # ค้นหา Notice
+    notice = db.query(Notice).filter(Notice.id == notice_id).first()
+
+    # ตรวจสอบว่า Notice มีอยู่หรือไม่
+    if not notice:
+        raise HTTPException(status_code=404, detail="Notice not found")
+
+    # ค้นหา NoticeImage ทั้งหมดที่เกี่ยวข้องกับ Notice
+    notice_images = (
+        db.query(NoticeImage).filter(NoticeImage.notice_id == notice.id).all()
+    )
+
+    # ตั้งค่า `deleted_at` สำหรับ NoticeImage (ถ้ามี)
+    for image in notice_images:
+        image.deleted_at = datetime.utcnow()
+
+    # ตั้งค่า `deleted_at` สำหรับ Notice
+    notice.deleted_at = datetime.utcnow()
+
+    # บันทึกการเปลี่ยนแปลงในฐานข้อมูล
     db.commit()
     db.refresh(notice)
 
-    return NoticeInResponse.from_orm(notice)
-
-def delete_notice(db: Session, inquirer_id: int):
-    notice = db.query(Notice).filter(Notice.id == inquirer_id).first()
-    
-    if not notice:
-        raise HTTPException(status_code=404, detail="Notice not found")
-    
-    if notice:
-        db.delete(notice)
-        db.commit()
-        return notice
     return NoticeInResponse.from_orm(notice)
 
 
@@ -109,8 +132,7 @@ def get_notices(
     order_price: str = None,
     order_size: str = None,
     order_notices: str = "desc",
-    request: Request = None,
-) -> dict:
+) -> NoticeResponse:
 
     # Query สำหรับค้นหา Notice
     query = db.query(Notice)
@@ -143,6 +165,8 @@ def get_notices(
     elif order_notices == "desc":
         query = query.order_by(desc(Notice.created_at))
 
+    query = query.filter(Notice.deleted_at.is_(None))
+
     # ค้นหา Notice ทั้งหมดจากฐานข้อมูล
     notices = query.offset(skip).limit(limit).all()
 
@@ -159,29 +183,27 @@ def get_notices(
     next_page = current_page + 1 if current_page < total_pages else None
     prev_page = current_page - 1 if current_page > 1 else None
 
-    # ตรวจสอบว่า request มีค่า prefix หรือไม่ และสร้าง URL
-    base_url = str(request.base_url) if request else "http://localhost:8000/"
     # สร้าง next_page_url และ prev_page_url โดยใช้ url_for และค่าพารามิเตอร์ที่เหมาะสม
     next_page_url = (
-        f"{base_url}api/notices/?skip={(next_page - 1) * limit}&limit={limit}"
+        f"api/notices/?skip={(next_page - 1) * limit}&limit={limit}"
         if next_page
         else None
     )
     prev_page_url = (
-        f"{base_url}api/notices/?skip={(prev_page - 1) * limit}&limit={limit}"
+        f"api/notices/?skip={(prev_page - 1) * limit}&limit={limit}"
         if prev_page
         else None
     )
-    
+
     if not notices:
         raise HTTPException(status_code=404, detail="Notices not found")
 
     # สร้าง response ที่มีข้อมูลต่างๆ
-    return {
-        "total": total,
-        "total_pages": total_pages,
-        "current_page": current_page,
-        "next_page_url": next_page_url,
-        "prev_page_url": prev_page_url,
-        "notices": [NoticeInResponse.from_orm(notice) for notice in notices],
-    }
+    return NoticeResponse(
+        total=total,
+        total_pages=total_pages,
+        current_page=current_page,
+        next_page_url=next_page_url,
+        prev_page_url=prev_page_url,
+        notices=[NoticeInResponse.from_orm(notice) for notice in notices],
+    )

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
-from app.schemas.notice import NoticeCreate, NoticeUpdate, NoticeInResponse
+from app.schemas.notice import NoticeCreate, NoticeUpdate, NoticeInResponse , NoticeResponse
 from app.database import SessionLocal
 from app.controllers.notice_controller import (
     create_notice,
@@ -13,30 +13,27 @@ from app.controllers.notice_controller import (
 def get_session_local():
     yield SessionLocal()
 
-
 router = APIRouter(
-    prefix="/api",
-    tags=["api notices"],
+    prefix="/api/notices",
+    tags=["notices"],
 )
 
 # สร้าง Notice ใหม่
-@router.post("/notices/", response_model=NoticeInResponse)
+@router.post("/", response_model=NoticeInResponse)
 def add_notice(notice_create: NoticeCreate, db: Session = Depends(get_session_local)):
     return create_notice(db=db, notice_create=notice_create)
 
 # ดึงข้อมูล Notice ทั้งหมด
-@router.get("/notices/")
-async def read_notices(
+@router.get("/", response_model=NoticeResponse)
+def read_notices(
     skip: int = 0,
     limit: int = 10,
-    keyword: str = None,
-    order_price: str = None,
-    order_size: str = None,
-    order_notices: str = None,
-    request: Request = None,
+    keyword: str | None = None,
+    order_price: str | None = None,
+    order_size: str | None = None,
+    order_notices: str | None = None,
     db: Session = Depends(get_session_local),
 ):
-    # เรียกใช้ฟังก์ชัน get_notices เพื่อดึงข้อมูลพร้อมกับ pagination
     return get_notices(
         db=db,
         skip=skip,
@@ -45,16 +42,15 @@ async def read_notices(
         order_price=order_price,
         order_size=order_size,
         order_notices=order_notices,
-        request=request,
     )
 
 # ดึงข้อมูล Notice ตาม ID
-@router.get("/notices/{notice_id}", response_model=NoticeInResponse)
+@router.get("/{notice_id}", response_model=NoticeInResponse)
 def read_notice(notice_id: int, db: Session = Depends(get_session_local)):
     return get_notice(db=db, notice_id=notice_id)
 
 # อัปเดตข้อมูล Notice
-@router.put("/notices/{notice_id}", response_model=NoticeInResponse)
+@router.put("/{notice_id}", response_model=NoticeInResponse)
 def modify_notice(
     notice_id: int,
     notice_update: NoticeUpdate,
@@ -63,6 +59,6 @@ def modify_notice(
     return update_notice(db=db, notice_id=notice_id, notice_update=notice_update)
 
 # ลบข้อมูล Notice ตาม ID
-@router.delete("/notices/{notice_id}", response_model=NoticeInResponse)
+@router.delete("/{notice_id}", response_model=NoticeInResponse)
 def drop_notice(notice_id: int, db: Session = Depends(get_session_local)):
     return delete_notice(db=db, notice_id=notice_id)

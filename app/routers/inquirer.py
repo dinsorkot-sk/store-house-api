@@ -53,7 +53,7 @@ def read_inquirer(inquirer_id: int, db: Session = Depends(get_session_local)):
     return get_inquirer(db=db, inquirer_id=inquirer_id)
 
 
-#
+# อัพเดท Inquirers ตาม ID
 @router.put("/inquirers/{inquirer_id}", response_model=InquirerResponse)
 def update_inquirer(
     inquirer_id: int, inquirer: InquirerUpdate, db: Session = Depends(get_session_local)
@@ -61,7 +61,7 @@ def update_inquirer(
     return update_inquirer(db=db, inquirer_id=inquirer_id, inquirer_update=inquirer)
 
 
-#
+# ลบ Inquirers ตาม ID
 @router.delete("/inquirers/{inquirer_id}", response_model=InquirerResponse)
 def drop_inquirer(inquirer_id: int, db: Session = Depends(get_session_local)):
     return delete_inquirer(db=db, inquirer_id=inquirer_id)

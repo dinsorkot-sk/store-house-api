@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from app.schemas.contact_images import ContactImageCreate
 
 class ContactBase(BaseModel):
     order_number: int
@@ -8,6 +9,7 @@ class ContactBase(BaseModel):
     url: str
 
 class ContactCreate(ContactBase):
+    images:list[ContactImageCreate]
     pass
 
 class ContactUpdate(BaseModel):

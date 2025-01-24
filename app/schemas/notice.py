@@ -3,6 +3,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from app.schemas.notice_images import NoticeImageCreate
 
 
 class NoticeBase(BaseModel):
@@ -35,6 +36,7 @@ class NoticeCreate(BaseModel):
     preferred_contact_email: bool
     poster_type: str
     price: float
+    images: list[NoticeImageCreate]
 
 
 class NoticeUpdate(NoticeBase):
@@ -51,6 +53,7 @@ class NoticeUpdate(NoticeBase):
     preferred_contact_email: Optional[bool] = None
     poster_type: Optional[str] = None
     price: Optional[float] = None
+    images: Optional[list] = None
 
 
 class NoticeInResponse(NoticeBase):
@@ -61,3 +64,12 @@ class NoticeInResponse(NoticeBase):
 
     class Config:
         from_attributes = True
+
+
+class NoticeResponse(BaseModel):
+    total: int
+    total_pages: int
+    current_page: int
+    next_page_url: Optional[str] = None
+    prev_page_url: Optional[str] = None
+    notices: list[NoticeInResponse]
