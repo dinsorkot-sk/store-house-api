@@ -2,16 +2,16 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_, asc, desc
 from datetime import datetime
 from app.models.inquirer import Inquirer
-from app.schemas.inquirer import InquirerCreate, InquirerUpdate, InquirerResponse
+from app.schemas.inquirer import InquirerCreate, InquirerUpdate, InquirerInResponse , InquirerResponse
 from fastapi import HTTPException, Request
 
 
 def create_inquirer(db: Session, inquirer: InquirerCreate):
-    db_inquirer = Inquirer(**inquirer.dict())
-    db.add(db_inquirer)
+    inquirer = Inquirer(**inquirer.dict())
+    db.add(inquirer)
     db.commit()
-    db.refresh(db_inquirer)
-    return db_inquirer
+    db.refresh(inquirer)
+    return InquirerInResponse.from_orm(inquirer)
 
 
 def get_inquirer(db: Session, inquirer_id: int):
@@ -20,7 +20,7 @@ def get_inquirer(db: Session, inquirer_id: int):
     if not inquirer:
         raise HTTPException(status_code=404, detail="Inquirer not found")
 
-    return InquirerResponse.from_orm(inquirer)
+    return InquirerInResponse.from_orm(inquirer)
 
 
 def get_inquirers(
@@ -30,8 +30,7 @@ def get_inquirers(
     keyword: str = None,
     order_inquirers: str = "desc",
     request: Request = None,
-) -> dict:
-    # inquirer = db.query(Inquirer).offset(skip).limit(limit).all()
+):
      # Query สำหรับค้นหา Inquirer
     query = db.query(Inquirer)
     
@@ -39,9 +38,10 @@ def get_inquirers(
     if keyword:
         query = query.filter(
             or_(
-                Inquirer.title.ilike(f"%{keyword}%"),
-                Inquirer.details.ilike(f"%{keyword}%"),
-                Inquirer.location.ilike(f"%{keyword}%"),
+                Inquirer.full_name.ilike(f"%{keyword}%"),
+                Inquirer.email.ilike(f"%{keyword}%"),
+                Inquirer.detail.ilike(f"%{keyword}%"),
+                Inquirer.phone_number.ilike(f"%{keyword}%"),
             )
         )
         
@@ -85,14 +85,14 @@ def get_inquirers(
         raise HTTPException(status_code=404, detail="Inquirer not found")
 
     # สร้าง response ที่มีข้อมูลต่างๆ
-    return {
-        "total": total,
-        "total_pages": total_pages,
-        "current_page": current_page,
-        "next_page_url": next_page_url,
-        "prev_page_url": prev_page_url,
-        "notices": [InquirerResponse.from_orm(inquirer) for inquirer in inquirers],
-    }
+    return InquirerResponse (
+        total=total,
+        total_pages=total_pages,
+        current_page=current_page,
+        next_page_url=next_page_url,
+        prev_page_url=prev_page_url,
+        inquirers=[InquirerInResponse.from_orm(inquirer) for inquirer in inquirers],
+    )
 
 
 
@@ -109,7 +109,7 @@ def update_inquirer(db: Session, inquirer_id: int, inquirer_update: InquirerUpda
         db.refresh(inquirer)
         return inquirer
 
-    return InquirerResponse.from_orm(inquirer)
+    return InquirerInResponse.from_orm(inquirer)
 
 
 def delete_inquirer(db: Session, inquirer_id: int):
@@ -123,4 +123,4 @@ def delete_inquirer(db: Session, inquirer_id: int):
         db.commit()
         db.refresh(inquirer)
         return inquirer
-    return InquirerResponse.from_orm(inquirer)
+    return InquirerInResponse.from_orm(inquirer)

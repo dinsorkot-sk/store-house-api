@@ -1,8 +1,6 @@
 from sqlalchemy import Column, Integer, String, TIMESTAMP, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from app.database import Base
 
 class Inquirer(Base):
     __tablename__ = 'inquirers'
@@ -17,4 +15,4 @@ class Inquirer(Base):
     uploaded_at = Column(TIMESTAMP, default='CURRENT_TIMESTAMP')
     deleted_at = Column(DateTime, nullable=True)
 
-    notice = relationship('Notice', back_populates='inquirers')  # Assuming a 'Notice' model exists.
+    # notice = relationship(Notice, back_populates='inquirers')  # Assuming a 'Notice' model exists.

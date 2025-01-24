@@ -1,8 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, TIMESTAMP, text, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
-
-Base = declarative_base()
+from app.database import Base
 
 class ContactImage(Base):
     __tablename__ = "contact_images"
@@ -14,4 +11,4 @@ class ContactImage(Base):
     uploaded_at = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"), nullable=False)
     deleted_at = Column(DateTime, nullable=True)
 
-    contact = relationship("Contact", back_populates="images")
+    # contact = relationship("Contact", back_populates="images")

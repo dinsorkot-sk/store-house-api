@@ -15,7 +15,7 @@ class InquirerUpdate(BaseModel):
     email: Optional[str] = None
     detail: Optional[str] = None
 
-class InquirerResponse(BaseModel):
+class InquirerInResponse(BaseModel):
     id: int
     notice_id: int
     full_name: str
@@ -28,3 +28,12 @@ class InquirerResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class InquirerResponse(BaseModel):
+    total: int
+    total_pages: int
+    current_page: int
+    next_page_url: Optional[str] = None
+    prev_page_url: Optional[str] = None
+    inquirers: list[InquirerInResponse]

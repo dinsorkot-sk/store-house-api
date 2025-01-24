@@ -1,7 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, TIMESTAMP, text
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from app.database import Base
 
 class Contact(Base):
     __tablename__ = "contacts"
