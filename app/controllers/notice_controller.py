@@ -10,6 +10,7 @@ from app.schemas.notice import (
     NoticeResponse,
 )
 from fastapi import HTTPException, Request
+import base64
 
 
 # ฟังก์ชันในการสร้าง Notice ใหม่
@@ -26,9 +27,12 @@ def create_notice(db: Session, notice_create: NoticeCreate) -> NoticeInResponse:
     # Add images if provided
     if notice_create.images:
         for image in notice_create.images:
+            
+            file_image = base64.b64decode(image.image_path)
+
             notice_image = NoticeImage(
                 notice_id=notice.id,
-                image_path=image.image_path,
+                image_path=file_image,
             )
             db.add(notice_image)
         db.commit()
