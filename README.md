@@ -76,3 +76,10 @@ Install the dependencies listed in the `requirements.txt` file.
 | GET | / | Root endpoint |
 | POST | /items/ | Create a new item |
 | GET | /items/{id} | Retrieve an item by |
+
+
+## Error
+
+#### error venv\Scripts\activate
+    ```bash
+    Set-ExecutionPolicy Unrestricted -Scope Process
