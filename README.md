@@ -80,6 +80,6 @@ Install the dependencies listed in the `requirements.txt` file.
 
 ## Error
 
-1. Error venv\Scripts\activate
+1. Error " venv\Scripts\activate "
     ```bash
     Set-ExecutionPolicy Unrestricted -Scope Process
