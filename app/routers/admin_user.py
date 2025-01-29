@@ -34,9 +34,11 @@ def drop_admin_user(admin_user_id: int, db: Session = Depends(get_session_local)
 
 #login
 @router.post("/admin_user/login/")
-def login_adminuser(username: str, password: str, db: Session = Depends(get_session_local)):
+def login_adminuser(username: str, password: str, request: Request , db: Session = Depends(get_session_local)):
     try:
+        # ตรวจสอบการ login และเก็บข้อมูลผู้ใช้ใน request.state
         user_data = login_admin_user(db=db, username=username, password=password)
+        request.state.user = user_data  # เก็บข้อมูลผู้ใช้ที่ login แล้ว
         return user_data
     except HTTPException as e:
         raise e
