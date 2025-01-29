@@ -1,12 +1,20 @@
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 from app.routers import notice, inquirer , admin_user , contact , working
-
 
 # สร้างตารางในฐานข้อมูล
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000/"],  # หรือ "" สำหรับอนุญาตทุกโดเมน
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],  # กำหนด method ที่อนุญาต
+    allow_headers=[""],  # กำหนด headers ที่อนุญาต
+)
 
 
 @app.get("/")
