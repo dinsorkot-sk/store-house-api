@@ -13,6 +13,14 @@ from fastapi import HTTPException, Request
 import base64
 
 
+def decode_base64(data):
+    # เพิ่ม padding หากขาด
+    missing_padding = len(data) % 4
+    if missing_padding:
+        data += '=' * (4 - missing_padding)
+
+    return base64.b64decode(data)
+
 # ฟังก์ชันในการสร้าง Notice ใหม่
 def create_notice(db: Session, notice_create: NoticeCreate) -> NoticeInResponse:
     # Create Notice instance
@@ -28,7 +36,7 @@ def create_notice(db: Session, notice_create: NoticeCreate) -> NoticeInResponse:
     if notice_create.images:
         for image in notice_create.images:
             
-            file_image = base64.b64decode(image.image_path)
+            file_image = decode_base64(image.image_path)
 
             notice_image = NoticeImage(
                 notice_id=notice.id,
