@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
-from app.schemas.inquirer import InquirerCreate, InquirerUpdate, InquirerResponse
+from app.schemas.inquirer import InquirerCreate, InquirerUpdate, InquirerResponse , InquirerInResponse
 from app.database import SessionLocal
 from app.controllers.inquirer_controller import (
     create_inquirer,
@@ -17,24 +17,28 @@ def get_session_local():
 
 router = APIRouter(
     prefix="/api",
-    tags=["api inquirers"],
+    tags=["api inquirers (ผู้สอบถาม)"],
 )
 
 
-# สร้าง Inquirers ใหม่
-@router.post("/inquirers/", response_model=InquirerResponse)
-def add_inquirer(inquirer: InquirerCreate, db: Session = Depends(get_session_local)):
-    return create_inquirer(db=db, inquirer=inquirer)
-
-
-#  ดึงข้อมูล Inquirers ทั้งหมด
-@router.get("/inquirers/", response_model=InquirerResponse)
+# ดึงรายการ Inquirers ทั้งหมด
+@router.get(
+    "/",
+    response_model=InquirerResponse,
+    summary="ดึงรายการ Inquirers ทั้งหมด",
+    description="""
+    ใช้สำหรับดึงรายการ Inquirers ทั้งหมด สามารถเพิ่มตัวกรองและการเรียงลำดับได้  
+    - **skip**: จำนวนรายการที่ข้าม (default = 0)  
+    - **limit**: จำนวนรายการที่ต้องการดึง (default = 10)  
+    - **keyword**: คำค้นหาที่ใช้สำหรับค้นหาในชื่อหรือรายละเอียด  
+    - **order_inquirers**: เรียงลำดับตามเวลาที่สร้าง (`asc` หรือ `desc`)  
+    """,
+)
 def read_inquirers(
     skip: int = 0,
     limit: int = 10,
-    keyword: str = None,
-    order_inquirers: str = None,
-    request: Request = None,
+    keyword: str | None = None,
+    order_inquirers: str | None = None,
     db: Session = Depends(get_session_local),
 ):
     return get_inquirers(
@@ -43,25 +47,53 @@ def read_inquirers(
         limit=limit,
         keyword=keyword,
         order_inquirers=order_inquirers,
-        request=request,
     )
 
 
-#  ดึงข้อมูล Inquirers ตาม ID
-@router.get("/inquirers/{inquirer_id}", response_model=InquirerResponse)
+# สร้าง Inquirer ใหม่
+@router.post(
+    "/",
+    response_model=InquirerResponse,
+    summary="สร้าง Inquirer ใหม่",
+    description="ใช้สำหรับเพิ่มข้อมูล Inquirer ลงในระบบ",
+)
+def add_inquirer(inquirer: InquirerCreate, db: Session = Depends(get_session_local)):
+    return create_inquirer(db=db, inquirer=inquirer)
+
+
+# ดึงข้อมูล Inquirer ตาม ID
+@router.get(
+    "/{inquirer_id}",
+    response_model=InquirerInResponse,
+    summary="ดึงข้อมูล Inquirer ตาม ID",
+    description="ใช้สำหรับดึงข้อมูล Inquirer รายบุคคลตาม ID ที่ระบุ",
+)
 def read_inquirer(inquirer_id: int, db: Session = Depends(get_session_local)):
     return get_inquirer(db=db, inquirer_id=inquirer_id)
 
 
-# อัพเดท Inquirers ตาม ID
-@router.put("/inquirers/{inquirer_id}", response_model=InquirerResponse)
-def update_inquirer(
+
+
+@router.put(
+    "/{inquirer_id}",
+    response_model=InquirerInResponse,  # Use InquirerInResponse to match the return type
+    summary="อัปเดตข้อมูล Inquirer",
+    description="ใช้สำหรับอัปเดตข้อมูล Inquirer ตาม ID ที่ระบุ",
+)
+def update_inquirer_route(
     inquirer_id: int, inquirer: InquirerUpdate, db: Session = Depends(get_session_local)
 ):
+    # Call the service function to handle the update
     return update_inquirer(db=db, inquirer_id=inquirer_id, inquirer_update=inquirer)
 
 
-# ลบ Inquirers ตาม ID
-@router.delete("/inquirers/{inquirer_id}", response_model=InquirerResponse)
+# ลบ Inquirer ตาม ID
+@router.delete(
+    "/{inquirer_id}",
+    response_model=InquirerInResponse,  # Use InquirerInResponse to match the return type
+    summary="ลบข้อมูล Inquirer",
+    description="ใช้สำหรับลบข้อมูล Inquirer ตาม ID ที่ระบุ",
+)
 def drop_inquirer(inquirer_id: int, db: Session = Depends(get_session_local)):
+    # Call the service function to handle the soft delete
     return delete_inquirer(db=db, inquirer_id=inquirer_id)

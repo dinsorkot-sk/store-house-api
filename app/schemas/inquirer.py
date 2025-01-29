@@ -29,7 +29,6 @@ class InquirerInResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 class InquirerResponse(BaseModel):
     total: int
     total_pages: int
@@ -37,3 +36,5 @@ class InquirerResponse(BaseModel):
     next_page_url: Optional[str] = None
     prev_page_url: Optional[str] = None
     inquirers: list[InquirerInResponse]
+    class Config:
+        from_attributes = True

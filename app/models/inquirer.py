@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, TIMESTAMP, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, TIMESTAMP, DateTime, ForeignKey , func
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -11,8 +11,8 @@ class Inquirer(Base):
     phone_number = Column(String, nullable=False)
     email = Column(String, nullable=False)
     detail = Column(String, nullable=False)
-    created_at = Column(TIMESTAMP, default='CURRENT_TIMESTAMP')
-    uploaded_at = Column(TIMESTAMP, default='CURRENT_TIMESTAMP')
+    created_at = Column(TIMESTAMP, default=func.current_timestamp())
+    uploaded_at = Column(TIMESTAMP, default=func.current_timestamp())
     deleted_at = Column(DateTime, nullable=True)
 
     # notice = relationship(Notice, back_populates='inquirers')  # Assuming a 'Notice' model exists.

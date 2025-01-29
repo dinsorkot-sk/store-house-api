@@ -15,10 +15,11 @@ def create_inquirer(db: Session, inquirer: InquirerCreate):
 
 
 def get_inquirer(db: Session, inquirer_id: int):
-    inquirer = db.query(Inquirer).filter(Inquirer.id == inquirer_id).first()
+    inquirer = db.query(Inquirer).filter(Inquirer.id == inquirer_id, Inquirer.deleted_at == None).first()
 
     if not inquirer:
         raise HTTPException(status_code=404, detail="Inquirer not found")
+
 
     return InquirerInResponse.from_orm(inquirer)
 
@@ -102,13 +103,15 @@ def update_inquirer(db: Session, inquirer_id: int, inquirer_update: InquirerUpda
     if inquirer is None:
         raise HTTPException(status_code=404, detail="Inquirer not found")
 
-    if inquirer:
-        for key, value in inquirer_update.dict(exclude_unset=True).items():
-            setattr(inquirer, key, value)
-        db.commit()
-        db.refresh(inquirer)
-        return inquirer
+    # Update the fields based on the InquirerUpdate schema
+    for key, value in inquirer_update.dict(exclude_unset=True).items():
+        setattr(inquirer, key, value)
+    
+    # Commit the changes and refresh the instance
+    db.commit()
+    db.refresh(inquirer)
 
+    # Return the updated inquirer as a response
     return InquirerInResponse.from_orm(inquirer)
 
 
@@ -118,9 +121,10 @@ def delete_inquirer(db: Session, inquirer_id: int):
     if not inquirer:
         raise HTTPException(status_code=404, detail="Inquirer not found")
 
-    if inquirer:
-        inquirer.deleted_at = datetime.utcnow()
-        db.commit()
-        db.refresh(inquirer)
-        return inquirer
+    # Perform soft delete
+    inquirer.deleted_at = datetime.now()
+    db.commit()
+    db.refresh(inquirer)
+
+    # Return the updated inquirer as a response
     return InquirerInResponse.from_orm(inquirer)
