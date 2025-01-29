@@ -77,6 +77,7 @@ Install the dependencies listed in the `requirements.txt` file.
 | POST | /items/ | Create a new item |
 | GET | /items/{id} | Retrieve an item by |
 
+---
 
 ## Error
 
