@@ -35,7 +35,7 @@ def upgrade() -> None:
             sa.Column('title', sa.String(length=255), nullable=False),
             sa.Column('url', sa.Text(), nullable=False),
             sa.Column('created_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
-            sa.Column('uploaded_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
+            sa.Column('updated_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
             sa.Column('deleted_at', sa.DateTime(), nullable=True),
             sa.PrimaryKeyConstraint('id')
         )

@@ -34,7 +34,7 @@ def upgrade() -> None:
             sa.Column('contact_id', sa.Integer(), nullable=False),
             sa.Column('image_path', sa.String(length=255), nullable=False),
             sa.Column('created_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
-            sa.Column('uploaded_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
+            sa.Column('updated_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
             sa.Column('deleted_at', sa.DateTime(), nullable=True),
             sa.ForeignKeyConstraint(['contact_id'], ['contacts.id'], ondelete='CASCADE'),
             sa.PrimaryKeyConstraint('id')

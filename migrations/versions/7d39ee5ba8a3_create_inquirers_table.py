@@ -37,7 +37,7 @@ def upgrade() -> None:
             sa.Column('email', sa.String(length=255), nullable=False),
             sa.Column('detail', sa.Text(), nullable=False),
             sa.Column('created_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
-            sa.Column('uploaded_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
+            sa.Column('updated_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
             sa.Column('deleted_at', sa.DateTime(), nullable=True),
             sa.ForeignKeyConstraint(['notice_id'], ['notices.id'], ondelete='CASCADE'),
             sa.PrimaryKeyConstraint('id')

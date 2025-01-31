@@ -40,7 +40,7 @@ def upgrade() -> None:
                 nullable=True,
             ),
             sa.Column(
-                "uploaded_at",
+                "updated_at",
                 sa.DateTime(),
                 server_default=sa.text("CURRENT_TIMESTAMP"),
                 nullable=True,
