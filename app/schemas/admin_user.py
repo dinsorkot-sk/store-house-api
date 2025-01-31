@@ -29,7 +29,7 @@ class AdminUserResponse(AdminUserBase):
     id : int
     created_at: datetime
     updated_at: datetime
-    deleted_at: Optional[datetime] = None
+    deleted_at: Optional[datetime] 
 
 
     class Config:

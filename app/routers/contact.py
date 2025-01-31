@@ -21,14 +21,22 @@ router = APIRouter(
 )
 
 
-# สร้าง Contacts ใหม่
-@router.post("/contacts/", response_model=ContactResponse)
-def add_contact(inquirer: ContactCreate, db: Session = Depends(get_session_local)):
-    return create_contact(db=db, inquirer=inquirer)
+@router.post(
+    "/contacts/",
+    response_model=ContactResponse,
+    summary="เพิ่มข้อมูล Contact",
+    description="ใช้สำหรับเพิ่มข้อมูล Contact ใหม่เข้าสู่ระบบ",
+)
+def add_contact(contact_create: ContactCreate, db: Session = Depends(get_session_local)):
+    return create_contact(db=db, contact_create=contact_create)
 
 
-#  ดึงข้อมูล Contacts ทั้งหมด
-@router.get("/contacts/", response_model=ContactResponse)
+@router.get(
+    "/contacts/",
+    response_model=ContactResponse,
+    summary="ดึงข้อมูล Contacts ทั้งหมด",
+    description="ใช้สำหรับดึงข้อมูล Contacts ทั้งหมดจากฐานข้อมูล สามารถกำหนดจำนวนข้อมูลที่ต้องการดึงและเรียงลำดับได้",
+)
 def read_contacts(
     skip: int = 0,
     limit: int = 10,
@@ -47,21 +55,33 @@ def read_contacts(
     )
 
 
-#  ดึงข้อมูล Contacts ตาม ID
-@router.get("/contacts/{inquirer_id}", response_model=ContactResponse)
+@router.get(
+    "/contacts/{inquirer_id}",
+    response_model=ContactResponse,
+    summary="ดึงข้อมูล Contact ตาม ID",
+    description="ใช้สำหรับดึงข้อมูล Contact ตาม ID ที่ระบุ",
+)
 def read_contact(inquirer_id: int, db: Session = Depends(get_session_local)):
     return get_contact(db=db, inquirer_id=inquirer_id)
 
 
-# อัพเดท Contacts ตาม ID
-@router.put("/contacts/{inquirer_id}", response_model=ContactResponse)
+@router.put(
+    "/contacts/{inquirer_id}",
+    response_model=ContactResponse,
+    summary="อัปเดตข้อมูล Contact",
+    description="ใช้สำหรับอัปเดตข้อมูล Contact ตาม ID ที่ระบุ",
+)
 def update_contact(
     inquirer_id: int, inquirer: ContactUpdate, db: Session = Depends(get_session_local)
 ):
     return update_contact(db=db, inquirer_id=inquirer_id, inquirer_update=inquirer)
 
 
-# ลบ Contacts ตาม ID
-@router.delete("/contacts/{inquirer_id}", response_model=ContactResponse)
+@router.delete(
+    "/contacts/{inquirer_id}",
+    response_model=ContactResponse,
+    summary="ลบข้อมูล Contact",
+    description="ใช้สำหรับลบข้อมูล Contact ตาม ID ที่ระบุ",
+)
 def drop_contact(inquirer_id: int, db: Session = Depends(get_session_local)):
     return delete_contact(db=db, inquirer_id=inquirer_id)

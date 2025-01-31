@@ -56,7 +56,7 @@ def update_admin_user(
     return AdminUserResponse.from_orm(admin_user)
 
 
-def soft_delete_admin_user(db: Session, admin_user_id: int):
+def soft_delete_admin_user(db: Session, admin_user_id: int) -> AdminUserResponse:
     # ค้นหา Admin User ที่ต้องการลบ
     admin_user = db.query(Admin_User).filter(Admin_User.id == admin_user_id).first()
 
@@ -72,6 +72,14 @@ def soft_delete_admin_user(db: Session, admin_user_id: int):
     # บันทึกการเปลี่ยนแปลง
     db.commit()
     db.refresh(admin_user)
+
+    return AdminUserResponse(
+        id=admin_user.id,
+        username=admin_user.username,
+        deleted_at=admin_user.deleted_at,
+        created_at=admin_user.created_at,
+        updated_at=admin_user.updated_at   
+    )
 
 
 

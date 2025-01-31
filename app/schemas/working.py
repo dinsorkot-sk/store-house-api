@@ -30,3 +30,12 @@ class WorkingResponse(WorkingBase):
     images: List[WorkingImageResponse] = []
     class Config:
         from_attributes = True
+
+
+class WorkingListResponse(BaseModel):
+    total: int
+    total_pages: int
+    current_page: int
+    next_page_url: Optional[str]
+    prev_page_url: Optional[str]
+    workings: List[WorkingResponse]
