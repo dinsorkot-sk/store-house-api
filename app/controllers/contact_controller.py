@@ -6,20 +6,36 @@ from app.schemas.contacts import ContactCreate , ContactUpdate ,  ContactRespons
 from app.schemas.contact_images import ContactImageCreate , ContactImageUpdate
 from fastapi import HTTPException, Request
 
+import base64
+
+
+def decode_base64(data):
+    # เพิ่ม padding หากขาด
+    missing_padding = len(data) % 4
+    if missing_padding:
+        data += '=' * (4 - missing_padding)
+
+    return base64.b64decode(data)
+
 def create_contact(db:Session , contact_create:ContactCreate):
-    contact = Contact(**contact_create.dict())
+    contact_data = contact_create.dict(exclude={"images"})
+    contact = Contact(**contact_data)
+
     db.add(contact)
     db.commit()
     db.refresh(contact)
     
     # Add images if provided
     if contact_create.images:
+
+
         for image in contact_create.images:
-            notice_image = ContactImageCreate(
+            file_image = decode_base64(image.image_path)
+            contact_image = ContactImageCreate(
                 notice_id=contact.id,
-                image_path=image.image_path,
+                image_path=file_image,
             )
-            db.add(notice_image)
+            db.add(contact_image)
         db.commit()
         
     return contact

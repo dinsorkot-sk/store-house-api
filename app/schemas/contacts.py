@@ -10,7 +10,7 @@ class ContactBase(BaseModel):
 
 class ContactCreate(ContactBase):
     images:list[ContactImageCreate]
-    pass
+    
 
 class ContactUpdate(BaseModel):
     title: Optional[str] = None
