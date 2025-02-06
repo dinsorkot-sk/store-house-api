@@ -23,7 +23,7 @@ class InquirerInResponse(BaseModel):
     email: str
     detail: str
     created_at: datetime
-    uploaded_at: datetime
+    updated_at: datetime
     deleted_at: Optional[datetime]
 
     class Config:

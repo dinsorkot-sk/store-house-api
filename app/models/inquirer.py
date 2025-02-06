@@ -12,7 +12,7 @@ class Inquirer(Base):
     email = Column(String, nullable=False)
     detail = Column(String, nullable=False)
     created_at = Column(TIMESTAMP, default=func.current_timestamp())
-    uploaded_at = Column(TIMESTAMP, default=func.current_timestamp())
+    updated_at = Column(TIMESTAMP, default=func.current_timestamp())
     deleted_at = Column(DateTime, nullable=True)
 
     # notice = relationship(Notice, back_populates='inquirers')  # Assuming a 'Notice' model exists.

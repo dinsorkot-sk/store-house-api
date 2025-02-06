@@ -14,6 +14,27 @@ router = APIRouter(
     tags=["api working (ผลงาน)"],
 )
 
+@router.get(
+    "/working/all",
+    response_model=WorkingListResponse,
+    summary="ดึงข้อมูล Working ทั้งหมด",
+    description="ใช้สำหรับดึงรายการ Working ทั้งหมด สามารถกำหนดจำนวนข้อมูลที่ต้องการดึงได้ด้วยพารามิเตอร์ `skip` และ `limit`",
+)
+def get_all_workings_route(skip: int = 0, limit: int = 10, db: Session = Depends(get_session_local)):
+    logging.info(f"Getting all workings with skip={skip}, limit={limit}")
+    return get_all_working(db=db, skip=skip, limit=limit)
+
+
+@router.get(
+    "/working/{working_id}",
+    response_model=WorkingResponse,
+    summary="ดึงข้อมูล Working ตาม ID",
+    description="ใช้สำหรับดึงข้อมูล Working และรูปภาพที่เกี่ยวข้องตาม ID ที่ระบุ",
+)
+def get_working_route(working_id: int, db: Session = Depends(get_session_local)):
+    return get_working_by_id(db=db, working_id=working_id)
+
+
 @router.post(
     "/working/",
     response_model=WorkingResponse,
@@ -46,28 +67,6 @@ def update_working_and_images_route(
         working_update=working_update,
         working_image_update_list=working_image_update_list
     )
-
-@router.get(
-    "/working/all",
-    response_model=WorkingListResponse,
-    summary="ดึงข้อมูล Working ทั้งหมด",
-    description="ใช้สำหรับดึงรายการ Working ทั้งหมด สามารถกำหนดจำนวนข้อมูลที่ต้องการดึงได้ด้วยพารามิเตอร์ `skip` และ `limit`",
-)
-def get_all_workings_route(skip: int = 0, limit: int = 10, db: Session = Depends(get_session_local)):
-    logging.info(f"Getting all workings with skip={skip}, limit={limit}")
-    return get_all_working(db=db, skip=skip, limit=limit)
-
-
-@router.get(
-    "/working/{working_id}",
-    response_model=WorkingResponse,
-    summary="ดึงข้อมูล Working ตาม ID",
-    description="ใช้สำหรับดึงข้อมูล Working และรูปภาพที่เกี่ยวข้องตาม ID ที่ระบุ",
-)
-def get_working_route(working_id: int, db: Session = Depends(get_session_local)):
-    return get_working_by_id(db=db, working_id=working_id)
-
-
 
 @router.delete(
     "/working/{working_id}",

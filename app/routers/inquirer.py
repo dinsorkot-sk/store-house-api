@@ -38,7 +38,7 @@ def read_inquirers(
     skip: int = 0,
     limit: int = 10,
     keyword: str | None = None,
-    order_inquirers: str | None = None,
+    order_inquirers: str = 'asc',
     db: Session = Depends(get_session_local),
 ):
     return get_inquirers(

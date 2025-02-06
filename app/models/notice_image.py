@@ -16,7 +16,7 @@ class NoticeImage(Base):
     )
     image_path = Column(String(255), nullable=False)
     created_at = Column(DateTime, server_default=func.current_timestamp())
-    uploaded_at = Column(DateTime, server_default=func.current_timestamp())
+    updated_at = Column(DateTime, server_default=func.current_timestamp())
     deleted_at = Column(DateTime, index=True, nullable=True)
 
     # Relationship with notice
