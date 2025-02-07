@@ -21,7 +21,7 @@ class Notice(Base):
     preferred_contact_email = Column(Boolean, default=False)
     poster_type = Column(String(50))
     price = Column(DECIMAL)
-    created_at = Column(DateTime, server_default=func.current_timestamp())
+    created_at = Column(DateTime, server_default=func.current_timestamp(), nullable=False)
     updated_at = Column(
         DateTime,
         server_default=func.current_timestamp(),

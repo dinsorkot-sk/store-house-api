@@ -16,7 +16,7 @@ def get_session_local():
 
 
 router = APIRouter(
-    prefix="/api",
+    prefix="/api/inquirer",
     tags=["api inquirers (ผู้สอบถาม)"],
 )
 
@@ -53,7 +53,7 @@ def read_inquirers(
 # สร้าง Inquirer ใหม่
 @router.post(
     "/",
-    response_model=InquirerResponse,
+    response_model=InquirerInResponse,
     summary="สร้าง Inquirer ใหม่",
     description="ใช้สำหรับเพิ่มข้อมูล Inquirer ลงในระบบ",
 )

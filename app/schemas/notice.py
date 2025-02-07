@@ -22,20 +22,7 @@ class NoticeBase(BaseModel):
     price: Optional[float] = None
 
 
-class NoticeCreate(BaseModel):
-    title: str
-    first_name: str
-    last_name: str
-    phone: str
-    email: str
-    location: str
-    size: str
-    office_size: str
-    details: str
-    preferred_contact_phone: bool
-    preferred_contact_email: bool
-    poster_type: str
-    price: float
+class NoticeCreate(NoticeBase):
     images: list[NoticeImageCreate]
 
 

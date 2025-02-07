@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
 
 class ContactImageBase(BaseModel):
@@ -11,7 +11,6 @@ class ContactImageCreate(ContactImageBase):
 
 class ContactImageUpdate(BaseModel):
     image_path: Optional[str] = None
-    deleted_at: Optional[datetime] = None
 
 class ContactImageResponse(ContactImageBase):
     id: int

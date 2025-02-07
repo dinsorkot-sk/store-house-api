@@ -15,13 +15,20 @@ class ContactCreate(ContactBase):
 class ContactUpdate(BaseModel):
     title: Optional[str] = None
     url: Optional[str] = None
-    deleted_at: Optional[datetime] = None
 
-class ContactResponse(ContactBase):
+class ContactInResponse(ContactBase):
     id: int
     created_at: datetime
-    uploaded_at: datetime
+    updated_at: datetime
     deleted_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
+
+class ContactResponse(BaseModel):
+    total: int
+    total_pages: int
+    current_page: int
+    next_page_url: Optional[str] = None
+    prev_page_url: Optional[str] = None
+    contacts: list[ContactInResponse]

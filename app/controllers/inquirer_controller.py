@@ -1,16 +1,24 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, asc, desc
 from datetime import datetime
+from app.models.notice import Notice
 from app.models.inquirer import Inquirer
 from app.schemas.inquirer import InquirerCreate, InquirerUpdate, InquirerInResponse , InquirerResponse
 from fastapi import HTTPException, Request
 
 
-def create_inquirer(db: Session, inquirer: InquirerCreate):
+def create_inquirer(db: Session, inquirer: InquirerCreate) -> InquirerInResponse:
+    # ตรวจสอบว่า notice_id มีอยู่ในฐานข้อมูลก่อน
+    notice = db.query(Notice).filter(Notice.id == inquirer.notice_id).first()
+    if not notice:
+        raise HTTPException(status_code=400, detail="Invalid notice_id: does not exist")
+
+    # สร้าง inquirer
     inquirer = Inquirer(**inquirer.dict())
     db.add(inquirer)
     db.commit()
     db.refresh(inquirer)
+
     return InquirerInResponse.from_orm(inquirer)
 
 
@@ -19,8 +27,7 @@ def get_inquirer(db: Session, inquirer_id: int):
 
     if not inquirer:
         raise HTTPException(status_code=404, detail="Inquirer not found")
-
-
+    
     return InquirerInResponse.from_orm(inquirer)
 
 
@@ -103,15 +110,15 @@ def update_inquirer(db: Session, inquirer_id: int, inquirer_update: InquirerUpda
     if inquirer is None:
         raise HTTPException(status_code=404, detail="Inquirer not found")
 
-    # Update the fields based on the InquirerUpdate schema
+    # Update fields dynamically
     for key, value in inquirer_update.dict(exclude_unset=True).items():
         setattr(inquirer, key, value)
-    
-    # Commit the changes and refresh the instance
+
+    inquirer.updated_at = datetime.utcnow()
+
     db.commit()
     db.refresh(inquirer)
 
-    # Return the updated inquirer as a response
     return InquirerInResponse.from_orm(inquirer)
 
 

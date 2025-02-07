@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 
 class InquirerCreate(BaseModel):
-    notice_id: int
+    notice_id: int = 1
     full_name: str
     phone_number: str
     email: str
